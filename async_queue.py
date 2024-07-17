@@ -4,7 +4,11 @@ import random
 # I extended kalmlake's great starter example.
 # https://medium.com/@kalmlake/async-io-in-python-queues-0916d8b5645a
 
-async def account_producer(queue, sentinels=0):
+async def account_producer(
+        queue: asyncio.Queue[str|None],
+        sentinels: int=0
+) -> None:
+
     for i in range(4):
         await asyncio.sleep(random.random())
         for j in range(5):
@@ -15,9 +19,10 @@ async def account_producer(queue, sentinels=0):
 
 
 async def account_consumer(
-    account_queue: asyncio.Queue[str],
-    result_queue: asyncio.Queue[str|Exception],
-):
+    account_queue: asyncio.Queue[str|None],
+    result_queue: asyncio.Queue[str|Exception|None],
+) -> None:
+
     while True:
         item = await account_queue.get()
         if item is None:
@@ -37,9 +42,10 @@ async def account_consumer(
 
 
 async def result_printer(
-    result_queue: asyncio.Queue[str|Exception],
-    sentinels=0
-):
+    result_queue: asyncio.Queue[str|Exception|None],
+    sentinels: int=0
+) -> None:
+
     while sentinels > 0:
         item = await result_queue.get()
         if item is None:
@@ -50,9 +56,10 @@ async def result_printer(
         result_queue.task_done()
 
 
-async def main():
-    account_queue = asyncio.Queue[str]()
-    result_queue = asyncio.Queue[str|Exception]()
+async def main() -> None:
+
+    account_queue = asyncio.Queue[str|None]()
+    result_queue = asyncio.Queue[str|Exception|None]()
     workers = 4
     await asyncio.gather(
         account_producer(account_queue, sentinels=workers),
