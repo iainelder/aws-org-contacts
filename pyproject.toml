@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "aws-org-contacts"
+version = "0.1.0"
+description = ""
+authors = ["Iain Samuel McLean Elder <iain@isme.es>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+boto3-stubs = "^1.34.144"
+mypy-boto3-organizations = "^1.34.139"
+mypy-boto3-account = "^1.34.121"
+mypy-boto3-sts = "^1.34.0"
+aioboto3 = "^13.1.1"
+types-aioboto3 = {extras = ["account", "organizations", "sts"], version = "^13.1.1"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
