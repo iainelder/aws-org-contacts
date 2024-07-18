@@ -94,7 +94,7 @@ All inputs are processed and displayed.
 
 Use a class to avoid some of the excessive nesting that makes the code hard to follow.
 
-Instantiate the clients like this. See the [aioboto3 usage doc](https://aioboto3.readthedocs.io/ en/latest/usage.html) for how to use an AsyncExitStack to make this cleaner.
+Instantiate the clients like this. See the [aioboto3 usage doc](https://aioboto3.readthedocs.io/en/latest/usage.html) for how to use an AsyncExitStack to make this cleaner.
 
 ```python
 class OrgContacts:
