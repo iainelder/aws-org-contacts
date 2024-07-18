@@ -1,5 +1,11 @@
 # aws-org-contacts
 
+## Usage
+
+```bash
+poetry run python aws_org_contacts.py > org_contacts.jsonl
+```
+
 ## Prove the queue concept
 
 ```bash
