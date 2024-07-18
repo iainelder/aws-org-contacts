@@ -54,7 +54,7 @@ poetry run python ./async_queue.py | cat -n
 
 The final output should look like this:
 
-```
+```text
      1	Exception('Exception')
      2	'0.1'
      3	'0.2'
