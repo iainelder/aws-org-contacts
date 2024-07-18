@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from dataclasses_json import dataclass_json
 
 import aioboto3
-from aiobotocore.config import AioConfig
 from types_aiobotocore_organizations.type_defs import AccountTypeDef
 from types_aiobotocore_account.type_defs import AlternateContactTypeDef
 from types_aiobotocore_account.literals import AlternateContactTypeType
@@ -79,14 +78,12 @@ async def get_root_contact(
     )
 
 
-# The published rate is 10/15, but even then sometimes it throttles!
+# The published rate is "10 per second, burst to 15 per second".
 # https://docs.aws.amazon.com/accounts/latest/reference/quotas.html
-# Things to explore:
-#
-# * Configure aioboto3 to retry more
-# * Put failed tasks back on the queue (put account subtasks on queue)
-#
-limiter = Limiter(10, max_burst=15)
+# Even then sometimes it throttles! So run at half the rate and hope it never
+# throttles.
+# See future work in the README for how to improve this.
+limiter = Limiter(5, max_burst=7)
 
 async def get_alternate_contact(
     session: aioboto3.Session,
@@ -138,7 +135,15 @@ async def result_printer(
             sentinels -= 1
             result_queue.task_done()
             continue
-        print(item, flush=True)
+
+        # Ugly hack until I figure out consistent exception handling, such as
+        # a generic result object with an optional error property.
+        if isinstance(item, Exception):
+            import json
+            print(json.dumps(str(item)))
+        else:
+            print(item.to_json(), flush=True)
+
         result_queue.task_done()
 
 
@@ -147,7 +152,7 @@ async def main() -> None:
     session = aioboto3.Session()
     account_queue = asyncio.Queue[AccountTypeDef | None]()
     result_queue = asyncio.Queue[AccountContact | Exception | None]()
-    workers = 16
+    workers = 4
     await asyncio.gather(
         account_producer(session, account_queue, sentinels=workers),
         *[

@@ -49,3 +49,25 @@ Exceptions from the main processor propagate to the results.
 Reuslts are processed and displayed while inputs are still being produced.
 
 All inputs are processed and displayed.
+
+## Future work
+
+Use a class to avoid some of the excessive nesting that makes the code hard to follow.
+
+Instantiate the clients like this. See the [aioboto3 usage doc](https://aioboto3.readthedocs.io/ en/latest/usage.html) for how to use an AsyncExitStack to make this cleaner.
+
+```python
+class OrgContacts:
+
+    @classmethod
+    async def create(cls, session: aioboto3.Session):
+        self = cls()
+        self.session = session
+        self.org_client = await self.session.client("organizations").__aenter__()
+        self.acc_client = await self.session.client("organizations").__aenter__()
+        return self
+```
+
+Configure aioboto3 to retry more on throttling errors from GetAlternateContact. I don't have a simple repro, but the current structure somehow ignores the retry configuration. So the program just runs at half the advertised throttling limit to avoid throttling.
+
+Alternatively, put failed tasks back on the queue (put account subtasks on queue). Look to orgtreepubsub for ideas. Use a framework that makes all the queue and retry plumbing easier.
