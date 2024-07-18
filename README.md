@@ -1,11 +1,5 @@
 # aws-org-contacts
 
-## Rate Limiting
-
-I read [Justin Van Winkle's survey of Python rate-limiting libraries](https://gist.github.com/justinvanwinkle/d9f04950083c4554835c1a35f9d22dad), and chose to use the least "broken" one, [limits](https://limits.readthedocs.io/en/stable/).
-
-I'm still looking for a rate limiter that can smooth out the requests such that if the rate is 10 per second, then the requests will be smoothed to roughly 1 every 100 milliseconds. Or one that just lets me set the rate at the subsecond level to get the same effect.
-
 ## Prove the queue concept
 
 ```bash
