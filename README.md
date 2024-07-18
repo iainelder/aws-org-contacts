@@ -1,9 +1,49 @@
 # aws-org-contacts
 
+aws-org-contacts dumps the contact information for an AWS organization.
+
+The tool looks up all the accounts and all the contact information. It writes a JSON line for each contact.
+
+```json
+{"account_id": "111111111111", "contact_type": "ROOT", "email_address": "aws+111111111111@example.org"}
+{"account_id": "111111111111", "contact_type": "BILLING", "email_address": "billingteam@example.org"}
+{"account_id": "111111111111", "contact_type": "SECURITY", "email_address": "securuityteam@example.org"}
+{"account_id": "111111111111", "contact_type": "OPERATIONS", "email_address": "operationsteam@example.org"}
+```
+
+The root contact comes from [ListAccounts](https://docs.aws.amazon.com/organizations/latest/APIReference/API_ListAccounts.html). The others come from [GetAlternateContact](https://docs.aws.amazon.com/accounts/latest/reference/API_GetAlternateContact.html).
+
+Each account scan writes between 1 and 4 lines. Every account has a root contact, and may have the alternate contact types. The tool writes nothing if an alternate contact is missing.
+
 ## Usage
 
+Clone the repo.
+
+Use Poetry to install in a Python virtualenv.
+
+Pipe though [pv](http://www.ivarch.com/programs/pv.shtml) (Pipe Viewer) to monitor progress. If you know the number of accounts, the line count gives a rough idea of how much work is left.
+
 ```bash
-poetry run python aws_org_contacts.py > org_contacts.jsonl
+poetry run python aws_org_contacts.py | pv --line-mode > org_contacts.jsonl
+```
+
+Use [DuckDB](https://duckdb.org/) to pivot the result into a table with one row for each account and a column for each contact type.
+
+```sql
+WITH contacts AS (
+  PIVOT org_contacts.jsonl
+  ON contact_type
+  USING MAX(email_address)
+  GROUP BY account_id
+  ORDER BY account_id
+)
+SELECT
+  account_id,
+  ROOT as root_email,
+  BILLING as billing_email,
+  OPERATIONS as operations_email,
+  SECURITY AS security_email
+FROM contacts;
 ```
 
 ## Prove the queue concept
