@@ -119,8 +119,8 @@ class ContactUpdater:
             AccountId=account_id,
             AlternateContactType=contact_type,
             EmailAddress=email_address,
-            Name="",  # TODO: Include name input.
-            Title="",  # TODO: Include title input.
+            Name=" ",  # TODO: Include name input.
+            Title=" ",  # TODO: Include title input.
             PhoneNumber="0",  # TODO: Include phone number input.
         )
 
